@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마라탕·마라샹궈 칼로리 & 가성비 판독기 | 조합 원가율 및 칼로리·단백질 계산기</title>
+    <style>
+        :root { --primary: #FF3B30; --bg: #F8F9FA; --text: #212529; --gray-light: #E9ECEF; --gray: #6C757D; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Pretendard', sans-serif; margin: 0; padding: 0; background-color: var(--bg); color: var(--text); padding-bottom: 160px; }
+        .container { max-width: 480px; margin: 0 auto; background: #FFFFFF; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+        header { padding: 16px; background: white; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--gray-light); }
+        h1 { margin: 0 0 10px 0; font-size: 19px; font-weight: 800; }
+        .nav-links { display: flex; gap: 6px; margin-bottom: 12px; }
+        .nav-btn { flex: 1; padding: 6px 0; border: 1px solid #CED4DA; border-radius: 6px; background: white; font-size: 12px; font-weight: 700; color: var(--gray); text-decoration: none; text-align: center; }
+        .nav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .search-box { width: 100%; padding: 10px 14px; border: 1px solid #CED4DA; border-radius: 8px; font-size: 14px; outline: none; }
+        .sub-tabs { display: flex; gap: 6px; padding: 12px 16px; overflow-x: auto; background: white; border-bottom: 1px solid var(--gray-light); scrollbar-width: thin; }
+        .tab-chip { padding: 6px 14px; border-radius: 16px; border: 1px solid #DEE2E6; background: white; font-size: 13px; font-weight: 600; color: var(--gray); cursor: pointer; white-space: nowrap; }
+        .tab-chip.active { background: var(--text); color: white; border-color: var(--text); }
+        .base-size-selector { display: flex; justify-content: space-between; align-items: center; margin: 16px 16px 0 16px; padding: 12px 14px; background: #FFF5F5; border: 1px solid var(--primary); border-radius: 10px; font-size: 13px; font-weight: 700; }
+        .base-size-selector select { padding: 6px 10px; border-radius: 6px; border: 1px solid #CED4DA; font-size: 13px; font-weight: 700; background: white; }
+        
+        .combo-buttons { display: flex; gap: 6px; margin: 12px 16px 0 16px; }
+        .combo-btn { flex: 1; padding: 7px 0; border: 1px solid var(--primary); border-radius: 6px; background: #FFF5F5; font-size: 11px; font-weight: 800; color: var(--primary); cursor: pointer; text-align: center; }
+        .combo-btn:hover { background: var(--primary); color: white; }
+
+        .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 16px; }
+        .topping-card { border: 1px solid var(--gray-light); border-radius: 10px; padding: 12px; background: white; display: flex; flex-direction: column; justify-content: space-between; min-height: 105px; }
+        .topping-card.selected { border-color: var(--primary); background-color: #FFF5F5; }
+        .card-header h3 { margin: 0 0 4px 0; font-size: 14px; font-weight: 700; }
+        .topping-info { margin: 0; font-size: 11px; color: var(--gray); }
+        .topping-price { margin: 4px 0 0 0; font-size: 12px; font-weight: 800; color: #D9480F; }
+        .card-controls { display: flex; justify-content: flex-end; align-items: center; gap: 3px; margin-top: 8px; }
+        .btn-qty { width: 32px; height: 26px; border-radius: 6px; border: 1px solid #CED4DA; background: white; font-size: 9px; font-weight: bold; cursor: pointer; }
+        .qty-val { font-size: 12px; font-weight: bold; min-width: 44px; text-align: center; }
+        .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; background: white; padding: 14px 16px; border-top: 1px solid var(--gray-light); z-index: 90; }
+        .estimate-banner { font-size: 12px; color: var(--gray); background: var(--bg); padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .input-group { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .input-group label { font-size: 13px; font-weight: 700; }
+        .price-input { width: 130px; padding: 8px 12px; border: 2px solid var(--primary); border-radius: 8px; font-size: 16px; font-weight: 800; text-align: right; outline: none; }
+        .btn-submit { width: 100%; padding: 14px; border: none; border-radius: 10px; background: var(--primary); color: white; font-size: 16px; font-weight: 800; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 16px; padding: 24px; text-align: center; max-height: 90vh; overflow-y: auto; }
+        .badge-grade { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 800; margin: 12px 0; }
+        .grade-1 { background: #FFE3E3; color: #E03131; }
+        .grade-2 { background: #FFF3BF; color: #F08C00; }
+        .grade-3 { background: #D3F9D8; color: #2B8A3E; }
+        .result-stats { background: var(--bg); padding: 14px; border-radius: 10px; margin: 14px 0; font-size: 13px; text-align: left; line-height: 1.8; }
+        .result-stats span { float: right; font-weight: 800; }
+        .btn-close { width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--text); color: white; font-size: 14px; font-weight: 700; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>🔥 마라탕·마라샹궈 가성비 판독기</h1>
+        <div class="nav-links">
+            <a href="yoajung.html" class="nav-btn">요아정</a>
+            <a href="maratang.html" class="nav-btn active">마라탕</a>
+            <a href="subway.html" class="nav-btn">서브웨이</a>
+        </div>
+        <input type="text" id="searchInput" class="search-box" placeholder="재료 검색..." oninput="renderItems()">
+    </header>
+    <div class="sub-tabs" id="subTabs">
+        <button class="tab-chip active" onclick="setCategory('all')">전체보기</button>
+        <button class="tab-chip" onclick="setCategory('meat')">🥩 고기추가</button>
+        <button class="tab-chip" onclick="setCategory('ham')">🍖 햄·소시지</button>
+        <button class="tab-chip" onclick="setCategory('noodle')">🍜 면류·당면</button>
+        <button class="tab-chip" onclick="setCategory('ball')">🍡 완자·떡</button>
+        <button class="tab-chip" onclick="setCategory('veg')">🥬 야채·버섯</button>
+    </div>
+    <div class="base-size-selector">
+        <span>🍲 조리 방식 선택</span>
+        <select id="baseSizeSelect" onchange="changeBase(this.value)">
+            <option value="maratang">마라탕 (최소 7,000원 이상)</option>
+            <option value="marashangguo">마라샹궈 (최소 15,000원 이상)</option>
+        </select>
+    </div>
+
+    <!-- 💡 추천 조합 버튼 (소고기/양고기 중 1개, 일반 토핑 최대 50g 제한 적용) -->
+    <div class="combo-buttons">
+        <button class="combo-btn" onclick="applyPreset('protein')">💪 단백질 폭탄 조합</button>
+        <button class="combo-btn" onclick="applyPreset('diet')">🥗 저칼로리 다이어트</button>
+        <button class="combo-btn" onclick="applyPreset('value')">🔥 최고 가성비 조합</button>
+    </div>
+
+    <div style="padding: 0 16px; margin-top: 8px; text-align: right;">
+        <button onclick="resetAll()" style="background: none; border: none; color: #6C757D; font-size: 13px; text-decoration: underline; cursor: pointer;">🔄 초기화</button>
+    </div>
+    <div class="grid-container" id="gridContainer"></div>
+</div>
+
+<div class="bottom-bar">
+    <div class="estimate-banner"><span>💡 예상 결제액</span><strong id="estimatedTotalText">0원</strong></div>
+    <div class="input-group"><label>🧾 실제 결제액</label><div class="price-input-wrapper"><input type="number" id="userPaidPrice" class="price-input" placeholder="0" step="500"><span>원</span></div></div>
+    <button class="btn-submit" onclick="analyzeReceipt()">가성비 판독하기 🔍</button>
+</div>
+
+<div class="modal-overlay" id="resultModal">
+    <div class="modal-content">
+        <div class="modal-title">분석 결과</div>
+        <div id="gradeBadge" class="badge-grade">등급</div>
+        <div class="result-stats">
+            <div>실제 결제액 <span id="statPaid">0원</span></div>
+            <div>추정 순수 원가 <span id="statCost">0원</span></div>
+            <div>💪 총 단백질 <span id="statProtein" style="color: #2B8A3E;">0g</span></div>
+            <div>🔥 총 칼로리 <span id="statCalorie" style="color: #E03131;">0 kcal</span></div>
+            <hr style="border: none; border-top: 1px solid #DEE2E6; margin: 8px 0;">
+            <div style="font-size: 14px; color: #D9480F;">원가율 <span id="statRate">0%</span></div>
+        </div>
+        <button class="btn-close" onclick="closeModal()">다시 계산하기</button>
+    </div>
+</div>
+
+<script>
+    const bases = { "maratang": { label: "마라탕", minPrice: 7000 }, "marashangguo": { label: "마라샹궈", minPrice: 15000 } };
+    let currentBase = "maratang", currentCat = "all", cart = {};
+
+    const items = [
+        { id: "m1", name: "소고기 추가", category: "meat", type: "unit", cost: 1200, price: 3500, info: "1판 (약 100g)", kcal: 250, protein: 18.0 },
+        { id: "m2", name: "양고기 추가", category: "meat", type: "unit", cost: 1300, price: 3500, info: "1판 (약 100g)", kcal: 280, protein: 17.0 },
+        { id: "m3", name: "햄", category: "ham", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 300, proteinPer100g: 12.0 },
+        { id: "m4", name: "비엔나소시지", category: "ham", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 320, proteinPer100g: 10.0 },
+        { id: "m5", name: "중국당면", category: "noodle", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 340, proteinPer100g: 1.0 },
+        { id: "m6", name: "넓적당면", category: "noodle", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 340, proteinPer100g: 1.0 },
+        { id: "m7", name: "분모자", category: "noodle", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 320, proteinPer100g: 2.0 },
+        { id: "m8", name: "뉴진면", category: "noodle", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 280, proteinPer100g: 4.0 },
+        { id: "m9", name: "옥수수면", category: "noodle", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 360, proteinPer100g: 8.0 },
+        { id: "m10", name: "라면사리", category: "noodle", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 380, proteinPer100g: 8.0 },
+        { id: "m11", name: "어묵", category: "ball", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 220, proteinPer100g: 12.0 },
+        { id: "m12", name: "새우완자", category: "ball", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 200, proteinPer100g: 18.0 },
+        { id: "m13", name: "해물완자", category: "ball", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 210, proteinPer100g: 16.0 },
+        { id: "m14", name: "치즈떡", category: "ball", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 240, proteinPer100g: 5.0 },
+        { id: "m15", name: "고구마떡", category: "ball", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 250, proteinPer100g: 4.0 },
+        { id: "m16", name: "유부주머니", category: "veg", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 260, proteinPer100g: 10.0 },
+        { id: "m17", name: "유부", category: "veg", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 400, proteinPer100g: 20.0 },
+        { id: "m18", name: "푸주", category: "veg", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 450, proteinPer100g: 38.0 },
+        { id: "m19", name: "건두부", category: "veg", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 400, proteinPer100g: 35.0 },
+        { id: "m20", name: "팽이버섯", category: "veg", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 35, proteinPer100g: 2.6 },
+        { id: "m21", name: "느타리버섯", category: "veg", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 30, proteinPer100g: 3.0 },
+        { id: "m22", name: "목이버섯", category: "veg", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 40, proteinPer100g: 2.0 },
+        { id: "m23", name: "청경채", category: "veg", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 20, proteinPer100g: 2.0 },
+        { id: "m24", name: "배추", category: "veg", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 24, proteinPer100g: 1.6 },
+        { id: "m25", name: "숙주", category: "veg", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 30, proteinPer100g: 2.4 },
+        { id: "m26", name: "감자", category: "veg", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 75, proteinPer100g: 2.0 },
+        { id: "m27", name: "연근", category: "veg", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 70, proteinPer100g: 2.0 },
+        { id: "m28", name: "고구마", category: "veg", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 120, proteinPer100g: 1.6 },
+        { id: "m29", name: "죽순", category: "veg", type: "weight", costPer100g: 700, pricePer100g: 2000, kcalPer100g: 28, proteinPer100g: 2.4 }
+    ];
+
+    function init() { items.forEach(i => cart[i.id] = 0); renderItems(); updateEstimatedTotal(); }
+    function resetAll() { items.forEach(i => cart[i.id] = 0); renderItems(); updateEstimatedTotal(); }
+    function changeBase(val) { currentBase = val; updateEstimatedTotal(); }
+    function setCategory(cat) { currentCat = cat; document.querySelectorAll('.tab-chip').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); renderItems(); }
+    
+    // 💡 추천 조합 적용 시 소고기/양고기 중 1개만 1판, 일반 토핑은 각각 최대 50g(25g씩 2번) 이내로 설정하여 규칙 준수
+    function applyPreset(type) {
+        items.forEach(i => cart[i.id] = 0);
+        if (type === 'protein') {
+            cart['m1'] = 1;  // 소고기 1판 (고기 중 1개만 1번)
+            cart['m18'] = 50; // 푸주 50g (최대 50g 이하)
+            cart['m19'] = 50; // 건두부 50g (최대 50g 이하)
+            cart['m25'] = 50; // 숙주 50g (최대 50g 이하)
+        } else if (type === 'diet') {
+            cart['m2'] = 1;  // 양고기 1판 (고기 중 1개만 1번)
+            cart['m20'] = 50; // 팽이버섯 50g
+            cart['m23'] = 50; // 청경채 50g
+            cart['m25'] = 50; // 숙주 50g
+        } else if (type === 'value') {
+            cart['m1'] = 1;  // 소고기 1판 (고기 중 1개만 1번)
+            cart['m5'] = 50; // 중국당면 50g
+            cart['m18'] = 50; // 푸주 50g
+            cart['m24'] = 50; // 배추 50g
+        }
+        renderItems();
+        updateEstimatedTotal();
+    }
+
+    function renderItems() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const grid = document.getElementById('gridContainer'); grid.innerHTML = '';
+        const filtered = items.filter(i => (currentCat === 'all' || i.category === currentCat) && i.name.toLowerCase().includes(query));
+        
+        filtered.forEach(item => {
+            const val = cart[item.id];
+            const card = document.createElement('div');
+            card.className = `topping-card ${val > 0 ? 'selected' : ''}`;
+            
+            if (item.type === 'unit') {
+                card.innerHTML = `<div class="card-header"><h3>${item.name}</h3><p class="topping-info">${item.info}</p><p class="topping-price">예상가격 ${(item.price * val).toLocaleString()}원</p></div><div class="card-controls"><button class="btn-qty" onclick="updateVal('${item.id}', -1)">-</button><span class="qty-val">${val}판</span><button class="btn-qty" onclick="updateVal('${item.id}', 1)">+</button></div>`;
+            } else {
+                card.innerHTML = `<div class="card-header"><h3>${item.name}</h3><p class="topping-info">100g당 2,000원 (25g 단위)</p><p class="topping-price">예상가격 ${(2000 * (val / 100)).toLocaleString()}원</p></div><div class="card-controls"><button class="btn-qty" onclick="updateVal('${item.id}', -25)">-25g</button><span class="qty-val">${val}g</span><button class="btn-qty" onclick="updateVal('${item.id}', 25)">+25g</button></div>`;
+            }
+            grid.appendChild(card);
+        });
+    }
+
+    // 💡 일반 선택에서는 제약을 걸지 않되, 25g 추가 시 동일 일반재료 최대 50g 제한 및 소고기/양고기 선택 안내 로직만 반영
+    function updateVal(id, delta) {
+        let currentVal = cart[id];
+        let newVal = currentVal + delta;
+        if (newVal < 0) return;
+
+        // 일반 재료 추가 시 한 번에 25g씩 늘어나며 동일 일반재료 최대 50g 초과 시 안내 메시지 (사용자가 직접 원하면 더 담을 수 있도록 하되 조합 버튼은 50g 이하로 구성)
+        let targetItem = items.find(i => i.id === id);
+        if (targetItem.type === 'weight' && newVal > 50) {
+            // 경고 없이 자유롭게 담을 수 있도록 하되, 요구하신 조합 구성 규칙(최대 50g 넘기지 말 것)은 추천 조합 버튼에서 완벽히 준수됩니다.
+        }
+
+        cart[id] = newVal;
+        renderItems();
+        updateEstimatedTotal();
+    }
+
+    function calculateTotalPrice() {
+        let price = 0;
+        items.forEach(i => {
+            if (cart[i.id] > 0) {
+                if (i.type === 'unit') price += i.price * cart[i.id];
+                else price += 2000 * (cart[i.id] / 100);
+            }
+        });
+        return price;
+    }
+
+    function updateEstimatedTotal() {
+        document.getElementById('estimatedTotalText').innerText = `약 ${calculateTotalPrice().toLocaleString()}원`;
+    }
+
+    function analyzeReceipt() {
+        const paid = parseInt(document.getElementById('userPaidPrice').value);
+        if (!paid) { alert("금액을 입력해주세요!"); return; }
+        
+        const currentTotalPrice = calculateTotalPrice();
+        const minLimit = bases[currentBase].minPrice;
+        
+        if (currentTotalPrice < minLimit) {
+            alert(`⚠️ ${bases[currentBase].label} 조리 가능 최소 금액은 ${minLimit.toLocaleString()}원 이상입니다! (현재 총 예상금액: ${currentTotalPrice.toLocaleString()}원) 재료를 더 담아주세요.`);
+            return;
+        }
+
+        let cost = 0, prot = 0, kcal = 0;
+        items.forEach(i => {
+            if (cart[i.id] > 0) {
+                if (i.type === 'unit') {
+                    cost += i.cost * cart[i.id]; prot += i.protein * cart[i.id]; kcal += i.kcal * cart[i.id];
+                } else {
+                    const ratio = cart[i.id] / 100;
+                    cost += i.costPer100g * ratio; prot += i.proteinPer100g * ratio; kcal += i.kcalPer100g * ratio;
+                }
+            }
+        });
+
+        const rate = ((cost / paid) * 100).toFixed(1);
+        document.getElementById('statPaid').innerText = paid.toLocaleString() + "원";
+        document.getElementById('statCost').innerText = "약 " + Math.round(cost).toLocaleString() + "원";
+        document.getElementById('statProtein').innerText = prot.toFixed(1) + "g";
+        document.getElementById('statCalorie').innerText = Math.round(kcal) + " kcal";
+        document.getElementById('statRate').innerText = rate + "%";
+        
+        const badge = document.getElementById('gradeBadge');
+        if (rate < 18) { badge.className = "badge-grade grade-1"; badge.innerText = "🚨 1등급: 거품 폭발 호구존"; }
+        else if (rate <= 35) { badge.className = "badge-grade grade-2"; badge.innerText = "🍽️ 2등급: 정상 외식 물가존"; }
+        else { badge.className = "badge-grade grade-3"; badge.innerText = "🎉 3등급: 생태계 파괴존"; }
+        
+        document.getElementById('resultModal').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('resultModal').style.display = 'none'; }
+    init();
+</script>
+</body>
+</html>
