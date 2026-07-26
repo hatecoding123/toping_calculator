@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hatecoding123.github.io/toping_calculator/sitemap.xml
