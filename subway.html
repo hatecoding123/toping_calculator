@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>서브웨이 꿀조합 칼로리 & 가성비 계산기 | 현실적 원가율 반영</title>
+    <title>서브웨이 꿀조합 칼로리 & 가성비 계산기 | 조합 원가율 및 칼로리·단백질 계산기</title>
     <meta name="description" content="서브웨이 빵 선택, 전 메뉴, 야채, 소스, 썹픽 완벽 비교 계산기!">
     <style>
         :root { --primary: #009245; --primary-dark: #007235; --bg: #F8F9FA; --text: #212529; --gray-light: #E9ECEF; --gray: #6C757D; }
@@ -196,97 +196,96 @@
 <script>
     let currentCat = 'all', cart = {};
 
-    // 💡 프랜차이즈 현실 원가율(약 18~25%)에 맞춰 대폭 하향 조정된 데이터베이스
     const items = [
-        // 🍞 빵 선택 (실제 원가 약 150원 내외)
-        { id: "b1", name: "위트 (통밀빵)", category: "bread", price: 0, cost: 150, info: "가장 건강한 통밀빵", kcal: 210, protein: 8.0, subpickNote: "추천 통밀빵" },
-        { id: "b2", name: "화이트 (식빵류)", category: "bread", price: 0, cost: 130, info: "부드러운 화이트 브레드", kcal: 202, protein: 7.5 },
-        { id: "b3", name: "플랫 브레드", category: "bread", price: 0, cost: 170, info: "쫀득하고 쫄깃한 식감", kcal: 232, protein: 6.0 },
-        { id: "b4", name: "파마산 오레가노", category: "bread", price: 0, cost: 150, info: "허브 가루와 파마산 치즈", kcal: 213, protein: 8.5 },
-        { id: "b5", name: "하트랜드 / 허니오트", category: "bread", price: 0, cost: 150, info: "오트밀 가루 토핑", kcal: 217, protein: 8.2 },
-        { id: "b6", name: "플랫브레드 (썹픽추천)", category: "bread", price: 0, cost: 170, info: "썹픽 기본 장착 빵", kcal: 232, protein: 6.0 },
+        // 🍞 빵 선택 (원가 현실화: 약 150원~200원대)
+        { id: "b1", name: "위트 (통밀빵)", category: "bread", price: 0, cost: 180, info: "가장 건강한 통밀빵", kcal: 210, protein: 8.0, subpickNote: "추천 통밀빵" },
+        { id: "b2", name: "화이트 (식빵류)", category: "bread", price: 0, cost: 150, info: "부드러운 화이트 브레드", kcal: 202, protein: 7.5 },
+        { id: "b3", name: "플랫 브레드", category: "bread", price: 0, cost: 200, info: "쫀득하고 쫄깃한 식감", kcal: 232, protein: 6.0 },
+        { id: "b4", name: "파마산 오레가노", category: "bread", price: 0, cost: 180, info: "허브 가루와 파마산 치즈", kcal: 213, protein: 8.5 },
+        { id: "b5", name: "하트랜드 / 허니오트", category: "bread", price: 0, cost: 180, info: "오트밀 가루 토핑", kcal: 217, protein: 8.2 },
+        { id: "b6", name: "플랫브레드 (썹픽추천)", category: "bread", price: 0, cost: 200, info: "썹픽 기본 장착 빵", kcal: 232, protein: 6.0 },
 
-        // 🥪 메인 샌드위치 16종 (원가율 ~22% 수준으로 현실화)
-        { id: "m1", name: "안창 비프 & 머쉬룸", category: "main", price: 8600, cost: 1900, info: "안창 비프 + 머쉬룸", kcal: 430, protein: 26, subpickName: "안창 비프 & 머쉬룸 썹픽 (풀세팅)", subpickPrice: 8600, subpickKcal: 407, subpickProtein: 20 },
-        { id: "m2", name: "스테이크 & 치즈", category: "main", price: 8200, cost: 1800, info: "스테이크 1스쿱", kcal: 380, protein: 26, subpickName: "스테이크 & 치즈 썹픽 (풀세팅)", subpickPrice: 8200, subpickKcal: 516, subpickProtein: 28 },
-        { id: "m3", name: "이탈리안 B.M.T.", category: "main", price: 6900, cost: 1400, info: "페퍼로니·살라미·햄", kcal: 410, protein: 20, subpickName: "이탈리안 B.M.T. 썹픽 (풀세팅)", subpickPrice: 6900, subpickKcal: 546, subpickProtein: 24 },
-        { id: "m4", name: "로티세리 바비큐 치킨", category: "main", price: 7500, cost: 1600, info: "촉촉한 바비큐 치킨", kcal: 350, protein: 29, subpickName: "로티세리 바비큐 치킨 썹픽 (풀세팅)", subpickPrice: 7500, subpickKcal: 462, subpickProtein: 32 },
-        { id: "m5", name: "에그마요", category: "main", price: 5700, cost: 1000, info: "에그마요 2스쿱", kcal: 480, protein: 14, subpickName: "에그마요 썹픽 (풀세팅)", subpickPrice: 5700, subpickKcal: 520, subpickProtein: 16 },
-        { id: "m6", name: "안창 비프", category: "main", price: 10400, cost: 2300, info: "안창비프 1.5배", kcal: 342, protein: 22, subpickName: "안창 비프 썹픽 (풀세팅)", subpickPrice: 10400, subpickKcal: 476, subpickProtein: 24 },
-        { id: "m7", name: "터키 베이컨 아보카도", category: "main", price: 8400, cost: 1800, info: "터키·베이컨·아보카도", kcal: 378, protein: 21, subpickName: "터키 베이컨 아보카도 썹픽 (풀세팅)", subpickPrice: 8400, subpickKcal: 450, subpickProtein: 23 },
-        { id: "m8", name: "스파이시 쉬림프", category: "main", price: 7900, cost: 1700, info: "매콤 새우 5마리", kcal: 347, protein: 15, subpickName: "스파이시 쉬림프 썹픽 (풀세팅)", subpickPrice: 7900, subpickKcal: 390, subpickProtein: 16 },
-        { id: "m9", name: "쉬림프", category: "main", price: 7700, cost: 1600, info: "새우 5마리", kcal: 246, protein: 13, subpickName: "쉬림프 썹픽 (풀세팅)", subpickPrice: 7700, subpickKcal: 310, subpickProtein: 14 },
-        { id: "m10", name: "로스트 치킨", category: "main", price: 7500, cost: 1600, info: "치킨 브레스트 1개", kcal: 320, protein: 27, subpickName: "로스트 치킨 썹픽 (풀세팅)", subpickPrice: 7500, subpickKcal: 380, subpickProtein: 28 },
-        { id: "m11", name: "풀드 포크 바비큐", category: "main", price: 7400, cost: 1600, info: "풀드포크 1스쿱", kcal: 327, protein: 24, subpickName: "풀드 포크 바비큐 썹픽 (풀세팅)", subpickPrice: 7400, subpickKcal: 410, subpickProtein: 26 },
-        { id: "m12", name: "써브웨이 클럽", category: "main", price: 7300, cost: 1500, info: "터키·햄·터키베이컨", kcal: 299, protein: 22, subpickName: "써브웨이 클럽 썹픽 (풀세팅)", subpickPrice: 7300, subpickKcal: 380, subpickProtein: 23 },
-        { id: "m13", name: "치킨 데리야끼", category: "main", price: 7200, cost: 1500, info: "치킨스트립 1스쿱", kcal: 369, protein: 25, subpickName: "치킨 데리야끼 썹픽 (풀세팅)", subpickPrice: 7200, subpickKcal: 440, subpickProtein: 27 },
-        { id: "m14", name: "스파이시 이탈리안", category: "main", price: 7900, cost: 1600, info: "페퍼로니·살라미", kcal: 480, protein: 21, subpickName: "스파이시 이탈리안 썹픽 (풀세팅)", subpickPrice: 7900, subpickKcal: 560, subpickProtein: 23 },
-        { id: "m15", name: "비엘티 (B.L.T.)", category: "main", price: 7100, cost: 1500, info: "베이컨 4장", kcal: 380, protein: 16, subpickName: "비엘티 썹픽 (풀세팅)", subpickPrice: 7100, subpickKcal: 450, subpickProtein: 18 },
-        { id: "m16", name: "머쉬룸", category: "main", price: 6200, cost: 1300, info: "머쉬룸 2스쿱", kcal: 240, protein: 9, subpickName: "머쉬룸 썹픽 (풀세팅)", subpickPrice: 6200, subpickKcal: 390, subpickProtein: 13 },
-        { id: "m17", name: "참치", category: "main", price: 6500, cost: 1300, info: "참치 2스쿱", kcal: 480, protein: 24, subpickName: "참치 썹픽 (풀세팅)", subpickPrice: 6500, subpickKcal: 520, subpickProtein: 25 },
-        { id: "m18", name: "햄", category: "main", price: 5900, cost: 1200, info: "햄 4장", kcal: 290, protein: 15, subpickName: "햄 썹픽 (풀세팅)", subpickPrice: 5900, subpickKcal: 360, subpickProtein: 16 },
-        { id: "m19", name: "베지", category: "main", price: 5000, cost: 900, info: "신선한 야채만", kcal: 230, protein: 8, subpickName: "베지 썹픽 (풀세팅)", subpickPrice: 5000, subpickKcal: 280, subpickProtein: 9 },
+        // 🥪 메인 샌드위치 16종 (프랜차이즈 식자재 원가율 15~25% 수준에 맞춰 대폭 하향 조정)
+        { id: "m1", name: "안창 비프 & 머쉬룸", category: "main", price: 8600, cost: 1800, info: "안창 비프 + 머쉬룸", kcal: 430, protein: 26, subpickName: "안창 비프 & 머쉬룸 썹픽 (풀세팅)", subpickPrice: 8600, subpickKcal: 407, subpickProtein: 20 },
+        { id: "m2", name: "스테이크 & 치즈", category: "main", price: 8200, cost: 1600, info: "스테이크 1스쿱", kcal: 380, protein: 26, subpickName: "스테이크 & 치즈 썹픽 (풀세팅)", subpickPrice: 8200, subpickKcal: 516, subpickProtein: 28 },
+        { id: "m3", name: "이탈리안 B.M.T.", category: "main", price: 6900, cost: 1200, info: "페퍼로니·살라미·햄", kcal: 410, protein: 20, subpickName: "이탈리안 B.M.T. 썹픽 (풀세팅)", subpickPrice: 6900, subpickKcal: 546, subpickProtein: 24 },
+        { id: "m4", name: "로티세리 바비큐 치킨", category: "main", price: 7500, cost: 1400, info: "촉촉한 바비큐 치킨", kcal: 350, protein: 29, subpickName: "로티세리 바비큐 치킨 썹픽 (풀세팅)", subpickPrice: 7500, subpickKcal: 462, subpickProtein: 32 },
+        { id: "m5", name: "에그마요", category: "main", price: 5700, cost: 900, info: "에그마요 2스쿱", kcal: 480, protein: 14, subpickName: "에그마요 썹픽 (풀세팅)", subpickPrice: 5700, subpickKcal: 520, subpickProtein: 16 },
+        { id: "m6", name: "안창 비프", category: "main", price: 10400, cost: 2200, info: "안창비프 1.5배", kcal: 342, protein: 22, subpickName: "안창 비프 썹픽 (풀세팅)", subpickPrice: 10400, subpickKcal: 476, subpickProtein: 24 },
+        { id: "m7", name: "터키 베이컨 아보카도", category: "main", price: 8400, cost: 1700, info: "터키·베이컨·아보카도", kcal: 378, protein: 21, subpickName: "터키 베이컨 아보카도 썹픽 (풀세팅)", subpickPrice: 8400, subpickKcal: 450, subpickProtein: 23 },
+        { id: "m8", name: "스파이시 쉬림프", category: "main", price: 7900, cost: 1600, info: "매콤 새우 5마리", kcal: 347, protein: 15, subpickName: "스파이시 쉬림프 썹픽 (풀세팅)", subpickPrice: 7900, subpickKcal: 390, subpickProtein: 16 },
+        { id: "m9", name: "쉬림프", category: "main", price: 7700, cost: 1500, info: "새우 5마리", kcal: 246, protein: 13, subpickName: "쉬림프 썹픽 (풀세팅)", subpickPrice: 7700, subpickKcal: 310, subpickProtein: 14 },
+        { id: "m10", name: "로스트 치킨", category: "main", price: 7500, cost: 1400, info: "치킨 브레스트 1개", kcal: 320, protein: 27, subpickName: "로스트 치킨 썹픽 (풀세팅)", subpickPrice: 7500, subpickKcal: 380, subpickProtein: 28 },
+        { id: "m11", name: "풀드 포크 바비큐", category: "main", price: 7400, cost: 1400, info: "풀드포크 1스쿱", kcal: 327, protein: 24, subpickName: "풀드 포크 바비큐 썹픽 (풀세팅)", subpickPrice: 7400, subpickKcal: 410, subpickProtein: 26 },
+        { id: "m12", name: "써브웨이 클럽", category: "main", price: 7300, cost: 1300, info: "터키·햄·터키베이컨", kcal: 299, protein: 22, subpickName: "써브웨이 클럽 썹픽 (풀세팅)", subpickPrice: 7300, subpickKcal: 380, subpickProtein: 23 },
+        { id: "m13", name: "치킨 데리야끼", category: "main", price: 7200, cost: 1300, info: "치킨스트립 1스쿱", kcal: 369, protein: 25, subpickName: "치킨 데리야끼 썹픽 (풀세팅)", subpickPrice: 7200, subpickKcal: 440, subpickProtein: 27 },
+        { id: "m14", name: "스파이시 이탈리안", category: "main", price: 7900, cost: 1400, info: "페퍼로니·살라미", kcal: 480, protein: 21, subpickName: "스파이시 이탈리안 썹픽 (풀세팅)", subpickPrice: 7900, subpickKcal: 560, subpickProtein: 23 },
+        { id: "m15", name: "비엘티 (B.L.T.)", category: "main", price: 7100, cost: 1200, info: "베이컨 4장", kcal: 380, protein: 16, subpickName: "비엘티 썹픽 (풀세팅)", subpickPrice: 7100, subpickKcal: 450, subpickProtein: 18 },
+        { id: "m16", name: "머쉬룸", category: "main", price: 6200, cost: 1100, info: "머쉬룸 2스쿱", kcal: 240, protein: 9, subpickName: "머쉬룸 썹픽 (풀세팅)", subpickPrice: 6200, subpickKcal: 390, subpickProtein: 13 },
+        { id: "m17", name: "참치", category: "main", price: 6500, cost: 1000, info: "참치 2스쿱", kcal: 480, protein: 24, subpickName: "참치 썹픽 (풀세팅)", subpickPrice: 6500, subpickKcal: 520, subpickProtein: 25 },
+        { id: "m18", name: "햄", category: "main", price: 5900, cost: 900, info: "햄 4장", kcal: 290, protein: 15, subpickName: "햄 썹픽 (풀세팅)", subpickPrice: 5900, subpickKcal: 360, subpickProtein: 16 },
+        { id: "m19", name: "베지", category: "main", price: 5000, cost: 700, info: "신선한 야채만", kcal: 230, protein: 8, subpickName: "베지 썹픽 (풀세팅)", subpickPrice: 5000, subpickKcal: 280, subpickProtein: 9 },
 
         // ⭐ SUBPICK 전용 탭 품목들
-        { id: "sp1", name: "⭐ 안창 비프 썹픽", category: "subpick", price: 10400, cost: 2300, info: "빵+치즈+모든야채+추천소스", kcal: 476, protein: 24, subpickName: "안창 비프 썹픽 (풀세팅)", subpickPrice: 10400, subpickKcal: 476, subpickProtein: 24 },
-        { id: "sp2", name: "⭐ 안창 비프 & 머쉬룸 썹픽", category: "subpick", price: 8600, cost: 1900, info: "빵+치즈+모든야채+추천소스", kcal: 407, protein: 20, subpickName: "안창 비프 & 머쉬룸 썹픽 (풀세팅)", subpickPrice: 8600, subpickKcal: 407, subpickProtein: 20 },
-        { id: "sp3", name: "⭐ 스테이크 & 치즈 썹픽", category: "subpick", price: 8200, cost: 1800, info: "빵+치즈+모든야채+추천소스", kcal: 516, protein: 28, subpickName: "스테이크 & 치즈 썹픽 (풀세팅)", subpickPrice: 8200, subpickKcal: 516, subpickProtein: 28 },
-        { id: "sp4", name: "⭐ 로티세리 바비큐 치킨 썹픽", category: "subpick", price: 7500, cost: 1600, info: "빵+치즈+모든야채+추천소스", kcal: 462, protein: 32, subpickName: "로티세리 바비큐 치킨 썹픽 (풀세팅)", subpickPrice: 7500, subpickKcal: 462, subpickProtein: 32 },
-        { id: "sp5", name: "⭐ 에그마요 썹픽", category: "subpick", price: 5700, cost: 1000, info: "빵+치즈+모든야채+추천소스", kcal: 520, protein: 16, subpickName: "에그마요 썹픽 (풀세팅)", subpickPrice: 5700, subpickKcal: 520, subpickProtein: 16 },
-        { id: "sp6", name: "⭐ 이탈리안 B.M.T. 썹픽", category: "subpick", price: 6900, cost: 1400, info: "빵+치즈+모든야채+추천소스", kcal: 546, protein: 24, subpickName: "이탈리안 B.M.T. 썹픽 (풀세팅)", subpickPrice: 6900, subpickKcal: 546, subpickProtein: 24 },
+        { id: "sp1", name: "⭐ 안창 비프 썹픽", category: "subpick", price: 10400, cost: 2200, info: "빵+치즈+모든야채+추천소스", kcal: 476, protein: 24, subpickName: "안창 비프 썹픽 (풀세팅)", subpickPrice: 10400, subpickKcal: 476, subpickProtein: 24 },
+        { id: "sp2", name: "⭐ 안창 비프 & 머쉬룸 썹픽", category: "subpick", price: 8600, cost: 1800, info: "빵+치즈+모든야채+추천소스", kcal: 407, protein: 20, subpickName: "안창 비프 & 머쉬룸 썹픽 (풀세팅)", subpickPrice: 8600, subpickKcal: 407, subpickProtein: 20 },
+        { id: "sp3", name: "⭐ 스테이크 & 치즈 썹픽", category: "subpick", price: 8200, cost: 1600, info: "빵+치즈+모든야채+추천소스", kcal: 516, protein: 28, subpickName: "스테이크 & 치즈 썹픽 (풀세팅)", subpickPrice: 8200, subpickKcal: 516, subpickProtein: 28 },
+        { id: "sp4", name: "⭐ 로티세리 바비큐 치킨 썹픽", category: "subpick", price: 7500, cost: 1400, info: "빵+치즈+모든야채+추천소스", kcal: 462, protein: 32, subpickName: "로티세리 바비큐 치킨 썹픽 (풀세팅)", subpickPrice: 7500, subpickKcal: 462, subpickProtein: 32 },
+        { id: "sp5", name: "⭐ 에그마요 썹픽", category: "subpick", price: 5700, cost: 900, info: "빵+치즈+모든야채+추천소스", kcal: 520, protein: 16, subpickName: "에그마요 썹픽 (풀세팅)", subpickPrice: 5700, subpickKcal: 520, subpickProtein: 16 },
+        { id: "sp6", name: "⭐ 이탈리안 B.M.T. 썹픽", category: "subpick", price: 6900, cost: 1200, info: "빵+치즈+모든야채+추천소스", kcal: 546, protein: 24, subpickName: "이탈리안 B.M.T. 썹픽 (풀세팅)", subpickPrice: 6900, subpickKcal: 546, subpickProtein: 24 },
 
         // 🥬 무료 야채류 (원가 30원 내외)
         { id: "v1", name: "양상추", category: "veg", price: 0, cost: 30, info: "아삭한 기본 채소", kcal: 5, protein: 0.3 },
-        { id: "v2", name: "토마토", category: "veg", price: 0, cost: 30, info: "신선한 슬라이스 3장", kcal: 7, protein: 0.3 },
+        { id: "v2", name: "토마토", category: "veg", price: 0, cost: 40, info: "신선한 슬라이스 3장", kcal: 7, protein: 0.3 },
         { id: "v3", name: "오이", category: "veg", price: 0, cost: 30, info: "상큼한 슬라이스", kcal: 3, protein: 0.1 },
         { id: "v4", name: "피클", category: "veg", price: 0, cost: 30, info: "새콤달콤 절임", kcal: 4, protein: 0.1 },
         { id: "v5", name: "할라피뇨", category: "veg", price: 0, cost: 30, info: "매콤한 고추 슬라이스", kcal: 3, protein: 0.1 },
-        { id: "v6", name: "올리브", category: "veg", price: 0, cost: 30, info: "짭조름한 블랙 올리브", kcal: 15, protein: 0.1 },
+        { id: "v6", name: "올리브", category: "veg", price: 0, cost: 40, info: "짭조름한 블랙 올리브", kcal: 15, protein: 0.1 },
         { id: "v7", name: "피망", category: "veg", price: 0, cost: 30, info: "아삭한 피망 슬라이스", kcal: 4, protein: 0.1 },
         { id: "v8", name: "양파", category: "veg", price: 0, cost: 30, info: "알싸한 생양파", kcal: 8, protein: 0.2 },
 
-        // 🍖 유료 미트 추가
+        // 🍖 유료 미트 추가 (원가 400~500원대)
         { id: "s1", name: "미트볼 추가", category: "meat", price: 2500, cost: 500, info: "1스쿱", kcal: 220, protein: 12.0 },
         { id: "s2", name: "에그마요 스쿱 추가", category: "meat", price: 2000, cost: 400, info: "1스쿱", kcal: 210, protein: 5.0 },
         { id: "s3", name: "치킨 스트립 추가", category: "meat", price: 2500, cost: 500, info: "1스쿱", kcal: 150, protein: 18.0 },
 
-        // 🧀 치즈 추가
+        // 🧀 치즈 추가 (원가 200원대)
         { id: "s4", name: "더치즈 추가", category: "cheese", price: 1100, cost: 200, info: "2장", kcal: 80, protein: 5.0 },
         { id: "s5", name: "슈레드치즈 추가", category: "cheese", price: 1100, cost: 200, info: "한 줌", kcal: 85, protein: 5.5 },
 
-        // 🥓 베이컨·아보카도 추가
+        // 🥓 베이컨·아보카도 추가 (원가 300원대)
         { id: "s6", name: "아보카도 추가", category: "extra", price: 1700, cost: 350, info: "1스쿱", kcal: 60, protein: 1.0 },
         { id: "s7", name: "베이컨 추가", category: "extra", price: 1500, cost: 300, info: "2바이트", kcal: 80, protein: 4.0 },
         { id: "s8", name: "페퍼로니 추가", category: "extra", price: 1500, cost: 300, info: "3장", kcal: 110, protein: 5.0 },
 
-        // 🍪 쿠키 및 사이드 품목
-        { id: "c1", name: "초코칩 쿠키", category: "cookie", price: 1300, cost: 250, info: "달콤한 대표 쿠키", kcal: 220, protein: 2.0 },
-        { id: "c2", name: "더블 초코칩 쿠키", category: "cookie", price: 1300, cost: 250, info: "진한 초코 쿠키", kcal: 210, protein: 2.2 },
-        { id: "c3", name: "오트밀 레이즌 쿠키", category: "cookie", price: 1300, cost: 250, info: "고소한 귀리 쿠키", kcal: 200, protein: 2.5 },
-        { id: "c4", name: "라즈베리 치즈케이크 쿠키", category: "cookie", price: 1300, cost: 250, info: "상큼달콤 쿠키", kcal: 210, protein: 1.8 },
-        { id: "c5", name: "웨지감자", category: "cookie", price: 1900, cost: 400, info: "바삭 포근 감자", kcal: 320, protein: 3.5 },
+        // 🍪 쿠키 및 사이드 품목 (원가 300~400원대)
+        { id: "c1", name: "초코칩 쿠키", category: "cookie", price: 1300, cost: 300, info: "달콤한 대표 쿠키", kcal: 220, protein: 2.0 },
+        { id: "c2", name: "더블 초코칩 쿠키", category: "cookie", price: 1300, cost: 300, info: "진한 초코 쿠키", kcal: 210, protein: 2.2 },
+        { id: "c3", name: "오트밀 레이즌 쿠키", category: "cookie", price: 1300, cost: 300, info: "고소한 귀리 쿠키", kcal: 200, protein: 2.5 },
+        { id: "c4", name: "라즈베리 치즈케이크 쿠키", category: "cookie", price: 1300, cost: 300, info: "상큼달콤 쿠키", kcal: 210, protein: 1.8 },
+        { id: "c5", name: "웨지감자", category: "cookie", price: 1900, cost: 450, info: "바삭 포근 감자", kcal: 320, protein: 3.5 },
 
-        // 🥤 음료 단품
-        { id: "d1", name: "코카콜라 (단품)", category: "drink", price: 2000, cost: 200, info: "시원한 탄산음료", kcal: 110, protein: 0 },
-        { id: "d2", name: "코카콜라 제로 (단품)", category: "drink", price: 2000, cost: 200, info: "제로 칼로리", kcal: 0, protein: 0 },
-        { id: "d3", name: "스프라이트 (단품)", category: "drink", price: 2000, cost: 200, info: "청량한 사이다", kcal: 105, protein: 0 },
-        { id: "d4", name: "환타 (단품)", category: "drink", price: 2000, cost: 200, info: "상큼한 오렌지", kcal: 115, protein: 0 },
+        // 🥤 음료 단품 (원가 100~200원대)
+        { id: "d1", name: "코카콜라 (단품)", category: "drink", price: 2000, cost: 150, info: "시원한 탄산음료", kcal: 110, protein: 0 },
+        { id: "d2", name: "코카콜라 제로 (단품)", category: "drink", price: 2000, cost: 150, info: "제로 칼로리", kcal: 0, protein: 0 },
+        { id: "d3", name: "스프라이트 (단품)", category: "drink", price: 2000, cost: 150, info: "청량한 사이다", kcal: 105, protein: 0 },
+        { id: "d4", name: "환타 (단품)", category: "drink", price: 2000, cost: 150, info: "상큼한 오렌지", kcal: 115, protein: 0 },
         { id: "d5", name: "생수 (단품)", category: "drink", price: 1500, cost: 100, info: "병 음료", kcal: 0, protein: 0 },
 
-        // 🥣 무료 소스류
-        { id: "s9", name: "랜치 소스", category: "sauce", price: 0, cost: 40, info: "추가 선택 (3줄)", kcal: 116, protein: 0.2 },
-        { id: "s10", name: "스위트 어니언", category: "sauce", price: 0, cost: 40, info: "추가 선택 (3줄)", kcal: 40, protein: 0.1 },
-        { id: "s11", name: "스위트 칠리", category: "sauce", price: 0, cost: 40, info: "추가 선택 (3줄)", kcal: 40, protein: 0.0 },
-        { id: "s12", name: "핫 칠리", category: "sauce", price: 0, cost: 40, info: "추가 선택 (3줄)", kcal: 42, protein: 0.3 },
-        { id: "s13", name: "스모크 바비큐", category: "sauce", price: 0, cost: 40, info: "추가 선택 (3줄)", kcal: 35, protein: 0.2 },
-        { id: "s14", name: "올리브 오일", category: "sauce", price: 0, cost: 40, info: "추가 선택", kcal: 124, protein: 0.0 }
+        // 🥣 무료 소스류 (원가 30원대)
+        { id: "s9", name: "랜치 소스", category: "sauce", price: 0, cost: 30, info: "추가 선택 (3줄)", kcal: 116, protein: 0.2 },
+        { id: "s10", name: "스위트 어니언", category: "sauce", price: 0, cost: 30, info: "추가 선택 (3줄)", kcal: 40, protein: 0.1 },
+        { id: "s11", name: "스위트 칠리", category: "sauce", price: 0, cost: 30, info: "추가 선택 (3줄)", kcal: 40, protein: 0.0 },
+        { id: "s12", name: "핫 칠리", category: "sauce", price: 0, cost: 30, info: "추가 선택 (3줄)", kcal: 42, protein: 0.3 },
+        { id: "s13", name: "스모크 바비큐", category: "sauce", price: 0, cost: 30, info: "추가 선택 (3줄)", kcal: 35, protein: 0.2 },
+        { id: "s14", name: "올리브 오일", category: "sauce", price: 0, cost: 30, info: "추가 선택", kcal: 124, protein: 0.0 }
     ];
 
     const setOptions = {
         "none": { name: "단품", price: 0, cost: 0, kcal: 0, protein: 0 },
         "cookie": { name: "쿠키 세트", price: 2700, cost: 600, kcal: 330, protein: 2.0 },
         "wedges": { name: "웨지 세트", price: 3300, cost: 750, kcal: 430, protein: 3.5 },
-        "soup": { name: "수프 세트", price: 3800, cost: 900, kcal: 220, protein: 6.0 }
+        "soup": { name: "수프 세트", price: 3800, cost: 800, kcal: 220, protein: 6.0 }
     };
 
     function init() { 
@@ -313,21 +312,21 @@
     function applyPreset(type) {
         items.forEach(i => cart[i.id] = 0);
         if (type === 'protein') {
-            cart['b1'] = 1;  
-            cart['m4'] = 1;  
-            cart['s3'] = 1;  
-            cart['v1'] = 1; cart['v2'] = 1; 
-            cart['s14'] = 1; 
+            cart['b1'] = 1;  // 위트 통밀빵
+            cart['m4'] = 1;  // 로티세리 바비큐 치킨
+            cart['s3'] = 1;  // 치킨 스트립 추가
+            cart['v1'] = 1; cart['v2'] = 1; // 야채
+            cart['s14'] = 1; // 올리브오일
         } else if (type === 'diet') {
-            cart['b1'] = 1;  
-            cart['m10'] = 1; 
-            cart['v1'] = 1; cart['v2'] = 1; cart['v3'] = 1; 
-            cart['s14'] = 1; 
+            cart['b1'] = 1;  // 위트 통밀빵
+            cart['m10'] = 1; // 로스트 치킨
+            cart['v1'] = 1; cart['v2'] = 1; cart['v3'] = 1; // 야채 듬뿍
+            cart['s14'] = 1; // 올리브오일
         } else if (type === 'value') {
-            cart['b4'] = 1;  
-            cart['m3'] = 1;  
+            cart['b4'] = 1;  // 파마산 오레가노
+            cart['m3'] = 1;  // 이탈리안 B.M.T.
             cart['v1'] = 1; cart['v2'] = 1;
-            cart['s9'] = 1;  
+            cart['s9'] = 1;  // 랜치 소스
         }
         renderItems();
         updateEstimatedTotal();
@@ -464,4 +463,5 @@
     init();
 </script>
 </body>
+</html>
 </html>
