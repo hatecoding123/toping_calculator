@@ -130,7 +130,7 @@
 </div>
 <div class="modal-overlay" id="resultModal">
     <div class="modal-content">
-        <div class="modal-title">분석 결과</div>
+        <div class="modal-title" style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">분석 결과</div>
         <div id="gradeBadge" class="badge-grade">등급</div>
         <p id="viralDesc" style="font-size: 13px; color: var(--gray);"></p>
         <div class="result-stats">
@@ -141,12 +141,11 @@
             <hr style="border: none; border-top: 1px solid #DEE2E6; margin: 8px 0;">
             <div style="font-size: 14px; color: #D9480F;">원가율 <span id="statRate">0%</span></div>
         </div>
-        <button onclick="shareResult()" style="width: 100%; padding: 12px; border: none; border-radius: 8px; background: #FAE100; font-weight: 800; cursor: pointer; margin-bottom: 8px;">💛 결과 공유하기</button>
         
         <a href="https://link.coupang.com/a/fU7xubgb3k" 
            target="_blank" 
            rel="noopener noreferrer" 
-           style="display: block; width: 100%; padding: 12px; border: 2px solid #FFB800; border-radius: 8px; background: #FFFDF5; color: #D9480F; font-size: 13px; font-weight: 800; text-decoration: none; margin-bottom: 6px; box-sizing: border-box;">
+           style="display: block; width: 100%; padding: 12px; border: 2px solid #FFB800; border-radius: 8px; background: #FFFDF5; color: #D9480F; font-size: 13px; font-weight: 800; text-decoration: none; margin-bottom: 8px; box-sizing: border-box;">
            🍦 사장님 마진 안 주고 집에서 만들어 먹기<br>
            <span style="font-size: 11px; color: #6C757D; font-weight: 600;">(요거트아이스크림 로켓배송 최저가 보기)</span>
         </a>
@@ -219,26 +218,25 @@
     function resetAll() { items.forEach(i => cart[i.id] = 0); renderItems(); updateEstimatedTotal(); }
     function changeBase(val) { currentBase = val; updateEstimatedTotal(); }
     
-    // 원클릭 추천 Top 조합 (기본 3개 토핑 조합 세팅)
     function applyPreset(type) {
         items.forEach(i => cart[i.id] = 0);
         if (type === 'protein') {
             document.getElementById('baseSizeSelect').value = "1"; currentBase = "1";
-            cart['f5'] = 1; // 바나나
-            cart['s1'] = 1; // 그래놀라
-            cart['b8'] = 1; // 베이비슈(화이트) - 단백질 보강용 3번째 토핑
+            cart['f5'] = 1;
+            cart['s1'] = 1;
+            cart['b8'] = 1;
             alert("💪 [근성장 단백질 조합 (3개 토핑)]이 담겼습니다!");
         } else if (type === 'diet') {
             document.getElementById('baseSizeSelect').value = "1"; currentBase = "1";
-            cart['f10'] = 1; // 자몽
-            cart['f6'] = 1;  // 블루베리
-            cart['f3'] = 1;  // 골드키위
+            cart['f10'] = 1;
+            cart['f6'] = 1;
+            cart['f3'] = 1;
             alert("🥗 [저칼로리 다이어트 조합 (3개 토핑)]이 담겼습니다!");
         } else if (type === 'king') {
             document.getElementById('baseSizeSelect').value = "2"; currentBase = "2";
-            cart['f1'] = 1;  // 벌집꿀
-            cart['f2'] = 1;  // 딸기
-            cart['b12'] = 1; // 바스크번트치즈케이크
+            cart['f1'] = 1;
+            cart['f2'] = 1;
+            cart['b12'] = 1;
             alert("👑 [마진파괴 킹 조합 (3개 토핑)]이 담겼습니다!");
         }
         renderItems();
@@ -253,7 +251,6 @@
         filtered.forEach(item => {
             const card = document.createElement('div');
             card.className = `topping-card ${cart[item.id] > 0 ? 'selected' : ''}`;
-            // 텍스트를 "예상가격 [가격]원"으로 수정 반영
             card.innerHTML = `<div class="card-header"><h3>${item.name}</h3><p class="topping-info">${item.info}</p><p class="topping-price">예상가격 ${item.price.toLocaleString()}원</p></div><div class="card-controls"><button class="btn-qty" onclick="updateQty('${item.id}', -1)">-</button><span class="qty-val">${cart[item.id]}</span><button class="btn-qty" onclick="updateQty('${item.id}', 1)">+</button></div>`;
             grid.appendChild(card);
         });
@@ -282,8 +279,8 @@
         document.getElementById('resultModal').style.display = 'flex';
     }
     function closeModal() { document.getElementById('resultModal').style.display = 'none'; }
-    function shareResult() { navigator.clipboard.writeText("요아정 공식 영양 성분 판독 완료!"); alert("복사되었습니다!"); }
     init();
 </script>
 </body>
 </html>
+
