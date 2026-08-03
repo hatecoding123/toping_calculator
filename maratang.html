@@ -89,7 +89,7 @@
         </select>
     </div>
 
-    <!-- 💡 추천 조합 버튼 (소고기/양고기 중 1개, 일반 토핑 최대 50g 제한 적용) -->
+    <!-- 💡 추천 조합 버튼 -->
     <div class="combo-buttons">
         <button class="combo-btn" onclick="applyPreset('protein')">💪 단백질 폭탄 조합</button>
         <button class="combo-btn" onclick="applyPreset('diet')">🥗 저칼로리 다이어트</button>
@@ -110,7 +110,7 @@
 
 <div class="modal-overlay" id="resultModal">
     <div class="modal-content">
-        <div class="modal-title">분석 결과</div>
+        <div class="modal-title" style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">분석 결과</div>
         <div id="gradeBadge" class="badge-grade">등급</div>
         <div class="result-stats">
             <div>실제 결제액 <span id="statPaid">0원</span></div>
@@ -120,6 +120,19 @@
             <hr style="border: none; border-top: 1px solid #DEE2E6; margin: 8px 0;">
             <div style="font-size: 14px; color: #D9480F;">원가율 <span id="statRate">0%</span></div>
         </div>
+
+        <a href="https://link.coupang.com/a/fU94KlrP6O" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           style="display: block; width: 100%; padding: 12px; border: 2px solid #FF3B30; border-radius: 8px; background: #FFF5F5; color: #D9480F; font-size: 13px; font-weight: 800; text-decoration: none; margin-bottom: 8px; box-sizing: border-box;">
+           🔥 사장님 마진 안 주고 집에서 마라탕 만들어 먹기<br>
+           <span style="font-size: 11px; color: #6C757D; font-weight: 600;">(마라탕 밀키트/재료 로켓배송 최저가 보기)</span>
+        </a>
+        
+        <p style="font-size: 9px; color: #ADB5BD; margin: 0 0 12px 0; line-height: 1.3;">
+            이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+        </p>
+
         <button class="btn-close" onclick="closeModal()">다시 계산하기</button>
     </div>
 </div>
@@ -165,24 +178,23 @@
     function changeBase(val) { currentBase = val; updateEstimatedTotal(); }
     function setCategory(cat) { currentCat = cat; document.querySelectorAll('.tab-chip').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); renderItems(); }
     
-    // 💡 추천 조합 적용 시 소고기/양고기 중 1개만 1판, 일반 토핑은 각각 최대 50g(25g씩 2번) 이내로 설정하여 규칙 준수
     function applyPreset(type) {
         items.forEach(i => cart[i.id] = 0);
         if (type === 'protein') {
-            cart['m1'] = 1;  // 소고기 1판 (고기 중 1개만 1번)
-            cart['m18'] = 50; // 푸주 50g (최대 50g 이하)
-            cart['m19'] = 50; // 건두부 50g (최대 50g 이하)
-            cart['m25'] = 50; // 숙주 50g (최대 50g 이하)
+            cart['m1'] = 1; 
+            cart['m18'] = 50; 
+            cart['m19'] = 50; 
+            cart['m25'] = 50; 
         } else if (type === 'diet') {
-            cart['m2'] = 1;  // 양고기 1판 (고기 중 1개만 1번)
-            cart['m20'] = 50; // 팽이버섯 50g
-            cart['m23'] = 50; // 청경채 50g
-            cart['m25'] = 50; // 숙주 50g
+            cart['m2'] = 1; 
+            cart['m20'] = 50; 
+            cart['m23'] = 50; 
+            cart['m25'] = 50; 
         } else if (type === 'value') {
-            cart['m1'] = 1;  // 소고기 1판 (고기 중 1개만 1번)
-            cart['m5'] = 50; // 중국당면 50g
-            cart['m18'] = 50; // 푸주 50g
-            cart['m24'] = 50; // 배추 50g
+            cart['m1'] = 1; 
+            cart['m5'] = 50; 
+            cart['m18'] = 50; 
+            cart['m24'] = 50; 
         }
         renderItems();
         updateEstimatedTotal();
@@ -207,17 +219,10 @@
         });
     }
 
-    // 💡 일반 선택에서는 제약을 걸지 않되, 25g 추가 시 동일 일반재료 최대 50g 제한 및 소고기/양고기 선택 안내 로직만 반영
     function updateVal(id, delta) {
         let currentVal = cart[id];
         let newVal = currentVal + delta;
         if (newVal < 0) return;
-
-        // 일반 재료 추가 시 한 번에 25g씩 늘어나며 동일 일반재료 최대 50g 초과 시 안내 메시지 (사용자가 직접 원하면 더 담을 수 있도록 하되 조합 버튼은 50g 이하로 구성)
-        let targetItem = items.find(i => i.id === id);
-        if (targetItem.type === 'weight' && newVal > 50) {
-            // 경고 없이 자유롭게 담을 수 있도록 하되, 요구하신 조합 구성 규칙(최대 50g 넘기지 말 것)은 추천 조합 버튼에서 완벽히 준수됩니다.
-        }
 
         cart[id] = newVal;
         renderItems();
