@@ -276,9 +276,9 @@
         document.getElementById('statRate').innerText = rate + "%";
         
         const badge = document.getElementById('gradeBadge');
-        if (rate < 18) { badge.className = "badge-grade grade-1"; badge.innerText = "🚨 1등급: 거품 폭발 호구존"; }
+        if (rate < 18) { badge.className = "badge-grade grade-1"; badge.innerText = "🚨 3등급: 거품 폭발 호구존"; }
         else if (rate <= 35) { badge.className = "badge-grade grade-2"; badge.innerText = "🍽️ 2등급: 정상 외식 물가존"; }
-        else { badge.className = "badge-grade grade-3"; badge.innerText = "🎉 3등급: 생태계 파괴존"; }
+        else { badge.className = "badge-grade grade-3"; badge.innerText = "🎉 1등급: 생태계 파괴존"; }
         
         document.getElementById('resultModal').style.display = 'flex';
     }
