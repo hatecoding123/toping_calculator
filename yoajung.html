@@ -147,7 +147,7 @@
            target="_blank" 
            rel="noopener noreferrer" 
            style="display: block; width: 100%; padding: 12px; border: 2px solid #FFB800; border-radius: 8px; background: #FFFDF5; color: #D9480F; font-size: 13px; font-weight: 800; text-decoration: none; margin-bottom: 6px; box-sizing: border-box;">
-           🍯 사장님 마진 안 주고 집에서 만들어 먹기<br>
+           🍦 사장님 마진 안 주고 집에서 만들어 먹기<br>
            <span style="font-size: 11px; color: #6C757D; font-weight: 600;">(요거트아이스크림 로켓배송 최저가 보기)</span>
         </a>
         
@@ -276,9 +276,9 @@
         document.getElementById('statCalorie').innerText = kcal.toFixed(1) + " kcal";
         document.getElementById('statRate').innerText = rate + "%";
         const badge = document.getElementById('gradeBadge');
-        if (rate < 18) { badge.className = "badge-grade grade-1"; badge.innerText = "🚨 1등급: 거품 폭발 호구존"; }
+        if (rate < 18) { badge.className = "badge-grade grade-1"; badge.innerText = "🚨 3등급: 거품 폭발 호구존"; }
         else if (rate <= 35) { badge.className = "badge-grade grade-2"; badge.innerText = "🍽️ 2등급: 정상 외식 물가존"; }
-        else { badge.className = "badge-grade grade-3"; badge.innerText = "🎉 3등급: 생태계 파괴존"; }
+        else { badge.className = "badge-grade grade-3"; badge.innerText = "🎉 1등급: 생태계 파괴존"; }
         document.getElementById('resultModal').style.display = 'flex';
     }
     function closeModal() { document.getElementById('resultModal').style.display = 'none'; }
